@@ -18,6 +18,7 @@ class SearchBar extends StatefulWidget {
 
   final String initialValue;
   final String text;
+  @override
   _SearchBarState createState() => _SearchBarState();
 }
 

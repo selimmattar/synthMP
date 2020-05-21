@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:synthMP/components/searchbar.dart';
 import 'package:synthMP/constants/customcolors.dart';
+import 'package:synthMP/screens/playlist_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key}) : super(key: key);
 
   @override
-  _HomeScreen createState() => _HomeScreen();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreen extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     // TODO: implement initState
@@ -62,37 +63,46 @@ class _HomeScreen extends State<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 shrinkWrap: true,
                 children: <Widget>[
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.only(right: 20),
-                        height: 250,
-                        width: 250,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(40),
-                          child: Image.asset(
-                            "assets/images/playlist01.jpg",
-                            width: 300,
-                            fit: BoxFit.cover,
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) {
+                        return PlaylistScreen();
+                      }));
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(right: 20),
+                          height: 250,
+                          width: 250,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(40),
+                            child: Image.asset(
+                              "assets/images/playlist01.jpg",
+                              width: 300,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
-                      ),
-                      Container(
-                          margin: EdgeInsets.only(top: 10, bottom: 5),
-                          child: Text(
-                            "A Synthwave Mix",
-                            style: TextStyle(fontSize: 20, color: Colors.white),
-                          )),
-                      Container(
-                          child: Text(
-                        "50 songs",
-                        style: TextStyle(
-                            fontSize: 15, color: CustomColors.purpleLight02),
-                      )),
-                    ],
+                        Container(
+                            margin: EdgeInsets.only(top: 10, bottom: 5),
+                            child: Text(
+                              "A Synthwave Mix",
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.white),
+                            )),
+                        Container(
+                            child: Text(
+                          "50 songs",
+                          style: TextStyle(
+                              fontSize: 15, color: CustomColors.purpleLight02),
+                        )),
+                      ],
+                    ),
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
