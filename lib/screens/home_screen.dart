@@ -79,27 +79,45 @@ class _HomeScreenState extends State<HomeScreen> {
                           margin: EdgeInsets.only(right: 20),
                           height: 250,
                           width: 250,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(40),
-                            child: Image.asset(
-                              "assets/images/playlist01.jpg",
-                              width: 300,
-                              fit: BoxFit.cover,
+                          child: Hero(
+                            tag: "playlistImage",
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(40),
+                              child: Image.asset(
+                                "assets/images/playlist01.jpg",
+                                width: 300,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ),
                         Container(
                             margin: EdgeInsets.only(top: 10, bottom: 5),
-                            child: Text(
-                              "A Synthwave Mix",
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.white),
+                            child: Hero(
+                              tag: "playlistName",
+                              transitionOnUserGestures: true,
+                              child: Material(
+                                type: MaterialType.transparency,
+                                child: Text(
+                                  "A Synthwave Mix",
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.white),
+                                ),
+                              ),
                             )),
                         Container(
+                            child: Hero(
+                          tag: "playlistSongsNbr",
+                          transitionOnUserGestures: true,
+                          child: Material(
+                            type: MaterialType.transparency,
                             child: Text(
-                          "50 songs",
-                          style: TextStyle(
-                              fontSize: 15, color: CustomColors.purpleLight02),
+                              "50 songs",
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  color: CustomColors.purpleLight02),
+                            ),
+                          ),
                         )),
                       ],
                     ),
