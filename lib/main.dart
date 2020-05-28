@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:synthMP/screens/home_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIOverlays([]);
 
   runApp(MyApp());

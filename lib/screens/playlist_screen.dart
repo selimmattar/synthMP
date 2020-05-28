@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:synthMP/components/PlaylistPersistentHeader.dart';
 import 'package:synthMP/constants/customcolors.dart';
+import 'package:synthMP/screens/single_song_screen.dart';
 
 class PlaylistScreen extends StatefulWidget {
   PlaylistScreen({Key key}) : super(key: key);
@@ -486,52 +487,60 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
               SliverList(delegate: SliverChildBuilderDelegate((context, index) {
                 return Container(
                   margin: EdgeInsets.all(25),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Container(
-                        padding: EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          color: CustomColors.purpleLight01,
-                        ),
-                        child: Icon(
-                          Icons.music_note,
-                          size: 30,
-                          color: CustomColors.purpleLight02,
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.all(15),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                "Low Earth Orbit",
-                                style: TextStyle(
-                                    fontSize: 20, color: Colors.white),
-                              ),
-                              Text(
-                                "A Synthwave Mix",
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    color: CustomColors.purpleLight02),
-                              )
-                            ],
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) {
+                        return SingleSongScreen();
+                      }));
+                    },
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            color: CustomColors.purpleLight01,
+                          ),
+                          child: Icon(
+                            Icons.music_note,
+                            size: 30,
+                            color: CustomColors.purpleLight02,
                           ),
                         ),
-                      ),
-                      Container(
-                        child: Icon(
-                          Icons.favorite,
-                          size: 30,
-                          color: CustomColors.purpleLight01,
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.all(15),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  "Low Earth Orbit",
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.white),
+                                ),
+                                Text(
+                                  "A Synthwave Mix",
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      color: CustomColors.purpleLight02),
+                                )
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                        Container(
+                          child: Icon(
+                            Icons.favorite,
+                            size: 30,
+                            color: CustomColors.purpleLight01,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }))
