@@ -2,13 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:synthMP/constants/customcolors.dart';
+import 'package:synthMP/utils/soundwavepainter.dart';
 
 class SingleSongScreen extends StatefulWidget {
   @override
   _SingleSongScreenState createState() => _SingleSongScreenState();
 }
 
-class _SingleSongScreenState extends State<SingleSongScreen> {
+class _SingleSongScreenState extends State<SingleSongScreen>
+    with SingleTickerProviderStateMixin {
+  Animation animation;
   static const batteryChannel =
       const MethodChannel('com.example.synthMP/battery');
   static const visualizerChannel = const EventChannel("visualizerStream");
@@ -26,7 +29,7 @@ class _SingleSongScreenState extends State<SingleSongScreen> {
     try {
       var result = await batteryChannel.invokeMethod(
           'getBatteryLevel', <String, String>{
-        'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
+        'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3'
       });
       batteryPercentage = 'Battery level at $result%';
     } on PlatformException catch (e) {
@@ -51,14 +54,6 @@ class _SingleSongScreenState extends State<SingleSongScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ClipOval(
-              child: Image.asset(
-                "assets/images/playlist01.jpg",
-                height: MediaQuery.of(context).size.width * 0.6,
-                width: MediaQuery.of(context).size.width * 0.6,
-                fit: BoxFit.cover,
-              ),
-            ),
             InkWell(
               onTap: () {
                 _getBatteryInformation();
@@ -71,16 +66,46 @@ class _SingleSongScreenState extends State<SingleSongScreen> {
             StreamBuilder(
                 stream: _getvisualizerData(),
                 builder: (context, snapshot) {
-                  if (snapshot.hasData)
-                    return Text(
-                      "visualizer : " + snapshot.data,
-                      style: TextStyle(color: Colors.white, fontSize: 30),
-                    );
-                  else
-                    return Text(
-                      "visulaizer :  no data receiver",
-                      style: TextStyle(color: Colors.white, fontSize: 30),
-                    );
+                  dynamic data = List.filled(120, 0);
+
+                  if (snapshot.hasData) data = snapshot.data;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        height: 300,
+                        width: 300,
+                        color: Colors.transparent,
+                        child: Stack(
+                          children: <Widget>[
+                            Positioned(
+                              top: 50,
+                              bottom: 50,
+                              left: 50,
+                              right: 50,
+                              child: ClipOval(
+                                child: Image.asset(
+                                  "assets/images/playlist01.jpg",
+                                  height: 200,
+                                  width: 200,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              height: 300,
+                              width: 300,
+                              child: CustomPaint(
+                                painter: SoundWavePainter(data, 200, 120),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
                 })
           ],
         ),

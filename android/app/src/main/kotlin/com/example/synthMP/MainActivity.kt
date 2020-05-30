@@ -9,6 +9,7 @@ import android.media.MediaPlayer
 import android.media.audiofx.Visualizer
 import android.os.*
 import android.util.Log
+import androidx.annotation.RequiresApi
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
@@ -19,10 +20,13 @@ import io.flutter.plugins.GeneratedPluginRegistrant
 
 
 class MainActivity: FlutterActivity(),EventChannel.StreamHandler {
-   lateinit var mediaPlayer : MediaPlayer
+    var mediaPlayer : MediaPlayer? = null
     lateinit var visualizer: Visualizer
     private val CHANNEL1 = "com.example.synthMP/battery"
      var eventSink: EventChannel.EventSink?=null
+    lateinit var runnable: Runnable
+    var wait = false
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         val eventChannel = EventChannel(flutterEngine!!.dartExecutor.binaryMessenger,"visualizerStream")
@@ -33,16 +37,22 @@ class MainActivity: FlutterActivity(),EventChannel.StreamHandler {
 
                 val batteryLevel = getBatteryLevel()
                 val url = call.argument<String>("url")
-                mediaPlayer= MediaPlayer().apply {
-                    setAudioStreamType(AudioManager.STREAM_MUSIC)
-                    setDataSource(url)
-                    prepare() // might take long! (for buffering, etc)
-                }
-                mediaPlayer.setOnPreparedListener {
-                    visualizer = Visualizer(it.audioSessionId)
-                    visualizer.captureSize= Visualizer.getCaptureSizeRange()[0]
-                    Log.e("main","visualizer.captureSize "+ Visualizer.getCaptureSizeRange()[0])
+                
+                if(mediaPlayer==null){
+                    /*mediaPlayer= MediaPlayer().apply {
+                        setAudioStreamType(AudioManager.STREAM_MUSIC)
+                        setDataSource(url)
+                        prepare() // might take long! (for buffering, etc)
+                    }*/
+                    mediaPlayer = MediaPlayer.create(this,R.raw.kompany)
 
+                    visualizer = Visualizer(mediaPlayer!!.audioSessionId)
+                    mediaPlayer!!.start()
+                    visualizer.captureSize= Visualizer.getCaptureSizeRange()[1]
+                    visualizer.setScalingMode(Visualizer.SCALING_MODE_AS_PLAYED)
+                    visualizer.setMeasurementMode(Visualizer.MEASUREMENT_MODE_PEAK_RMS)
+                    Log.e("main","visualizer.captureSize "+ Visualizer.getCaptureSizeRange()[0])
+                    //visualizer.setMeasurementMode(Visualizer.MEASUREMENT_MODE_PEAK_RMS)
                     visualizer.setDataCaptureListener(
                             object : Visualizer.OnDataCaptureListener {
                                 override fun onWaveFormDataCapture(
@@ -56,17 +66,28 @@ class MainActivity: FlutterActivity(),EventChannel.StreamHandler {
                                 override fun onFftDataCapture(
                                         visualizer: Visualizer,
                                         bytes: ByteArray, samplingRate: Int
-                                ) { // If the Visualizer is ready and has data, send that data to the VisualizerView
-                                    //Log.e("main","sampling rate is "+samplingRate)
-                                    eventSink!!.success(bytes.get(0).toString())
+                                ) {
+                                    eventSink!!.success(bytes)
+                                    /* if(!wait){
+                                         eventSink!!.success(bytes)
+                                         wait=true
+                                     }else {
+                                         Handler().postDelayed(Runnable {
+                                             wait=false
+                                         },3000)
+                                         eventSink!!.success("nodata")
+
+                                     }*/
+
+
                                     if (visualizer != null && visualizer.getEnabled()) {
                                         //Log.e("main","onFftDataCapture")
                                         var i=0
-                                        bytes.forEach {
-                                            if (!it.toString().equals("0"))
-                                            //Log.e("main",it.toString())
-                                                i++
-                                        }
+                                        var step = 30
+                                        var mbytes = IntArray(step)
+
+                                        /*for (i in 0..(bytes.size/step))
+                                            mbytes.set(i*step,bytes.get())*/
                                         //Log.e("main","rate : "+i.toString())
 
                                     }
@@ -75,9 +96,71 @@ class MainActivity: FlutterActivity(),EventChannel.StreamHandler {
                             Visualizer.getMaxCaptureRate(), false, true
                     )
                     visualizer.enabled=true
-                    it.start()
+
+                  /*  mediaPlayer!!.setOnPreparedListener {
+                        visualizer = Visualizer(it.audioSessionId)
+
+                        visualizer.captureSize= Visualizer.getCaptureSizeRange()[1]
+
+                        Log.e("main","visualizer.captureSize "+ Visualizer.getCaptureSizeRange()[0])
+                        //visualizer.setMeasurementMode(Visualizer.MEASUREMENT_MODE_PEAK_RMS)
+                        visualizer.setDataCaptureListener(
+                                object : Visualizer.OnDataCaptureListener {
+                                    override fun onWaveFormDataCapture(
+                                            visualizer: Visualizer,
+                                            bytes: ByteArray, samplingRate: Int
+                                    ) { // Do nothing, we are only interested in the FFT (aka fast Fourier transform)
+
+
+                                    }
+
+                                    override fun onFftDataCapture(
+                                            visualizer: Visualizer,
+                                            bytes: ByteArray, samplingRate: Int
+                                    ) {
+                                        eventSink!!.success(bytes)
+                                       /* if(!wait){
+                                            eventSink!!.success(bytes)
+                                            wait=true
+                                        }else {
+                                            Handler().postDelayed(Runnable {
+                                                wait=false
+                                            },3000)
+                                            eventSink!!.success("nodata")
+
+                                        }*/
+
+
+                                        if (visualizer != null && visualizer.getEnabled()) {
+                                            //Log.e("main","onFftDataCapture")
+                                            var i=0
+                                            var step = 30
+                                            var mbytes = IntArray(step)
+
+                                            /*for (i in 0..(bytes.size/step))
+                                                mbytes.set(i*step,bytes.get())*/
+                                            //Log.e("main","rate : "+i.toString())
+
+                                        }
+                                    }
+                                },
+                                Visualizer.getMaxCaptureRate(), false, true
+                        )
+                        visualizer.enabled=true
+                        it.start()
+                    }
+*/
                 }
-                if (batteryLevel != -1) {
+
+                if(mediaPlayer!!.isPlaying){
+                    mediaPlayer!!.pause()
+
+                }
+                    else {
+                   mediaPlayer!!.start()
+
+                }
+                 if (batteryLevel != -1) {
                     result.success(batteryLevel)
                 } else {
                     result.error("Unavailable", "Battery level is not available", null)
