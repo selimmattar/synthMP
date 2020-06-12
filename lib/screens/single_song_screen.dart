@@ -11,7 +11,9 @@ class SingleSongScreen extends StatefulWidget {
 
 class _SingleSongScreenState extends State<SingleSongScreen>
     with SingleTickerProviderStateMixin {
-  Animation animation;
+  Animation<double> animation;
+  AnimationController animationController;
+  double _fraction = 0;
   static const batteryChannel =
       const MethodChannel('com.example.synthMP/battery');
   static const visualizerChannel = const EventChannel("visualizerStream");
@@ -21,7 +23,16 @@ class _SingleSongScreenState extends State<SingleSongScreen>
     // TODO: implement initState
     super.initState();
     print("initializing state");
-    WidgetsFlutterBinding.ensureInitialized();
+
+    animationController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 150))
+          ..repeat(reverse: true);
+    animation = Tween(begin: 0.0, end: 1.0).animate(animationController)
+      ..addListener(() {
+        setState(() {
+          _fraction = animation.value;
+        });
+      });
   }
 
   Future<void> _getBatteryInformation() async {
@@ -47,6 +58,7 @@ class _SingleSongScreenState extends State<SingleSongScreen>
 
   @override
   Widget build(BuildContext context) {
+    print("------widget rebuild---------");
     return Scaffold(
       backgroundColor: CustomColors.purple,
       body: Center(
@@ -66,10 +78,12 @@ class _SingleSongScreenState extends State<SingleSongScreen>
             StreamBuilder(
                 stream: _getvisualizerData(),
                 builder: (context, snapshot) {
-                  dynamic data = List.filled(120, 0);
+                  dynamic data = List.filled(128, 0);
 
                   if (snapshot.hasData) data = snapshot.data;
 
+                  print(_fraction);
+                  print(data.toString());
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -98,7 +112,8 @@ class _SingleSongScreenState extends State<SingleSongScreen>
                               height: 300,
                               width: 300,
                               child: CustomPaint(
-                                painter: SoundWavePainter(data, 200, 120),
+                                painter:
+                                    SoundWavePainter(data, 128, 120, _fraction),
                               ),
                             ),
                           ],

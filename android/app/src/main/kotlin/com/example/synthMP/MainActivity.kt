@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.content.IntentFilter
-import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.audiofx.Visualizer
 import android.os.*
@@ -13,10 +12,7 @@ import androidx.annotation.RequiresApi
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
-import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugins.GeneratedPluginRegistrant
 
 
 class MainActivity: FlutterActivity(),EventChannel.StreamHandler {
@@ -45,12 +41,11 @@ class MainActivity: FlutterActivity(),EventChannel.StreamHandler {
                         prepare() // might take long! (for buffering, etc)
                     }*/
                     mediaPlayer = MediaPlayer.create(this,R.raw.kompany)
-
-                    visualizer = Visualizer(mediaPlayer!!.audioSessionId)
                     mediaPlayer!!.start()
+                    visualizer = Visualizer(mediaPlayer!!.audioSessionId)
+
                     visualizer.captureSize= Visualizer.getCaptureSizeRange()[1]
-                    visualizer.setScalingMode(Visualizer.SCALING_MODE_AS_PLAYED)
-                    visualizer.setMeasurementMode(Visualizer.MEASUREMENT_MODE_PEAK_RMS)
+
                     Log.e("main","visualizer.captureSize "+ Visualizer.getCaptureSizeRange()[0])
                     //visualizer.setMeasurementMode(Visualizer.MEASUREMENT_MODE_PEAK_RMS)
                     visualizer.setDataCaptureListener(
@@ -67,27 +62,46 @@ class MainActivity: FlutterActivity(),EventChannel.StreamHandler {
                                         visualizer: Visualizer,
                                         bytes: ByteArray, samplingRate: Int
                                 ) {
-                                    eventSink!!.success(bytes)
-                                    /* if(!wait){
-                                         eventSink!!.success(bytes)
-                                         wait=true
-                                     }else {
-                                         Handler().postDelayed(Runnable {
-                                             wait=false
-                                         },3000)
-                                         eventSink!!.success("nodata")
 
-                                     }*/
+
+
+
 
 
                                     if (visualizer != null && visualizer.getEnabled()) {
                                         //Log.e("main","onFftDataCapture")
-                                        var i=0
-                                        var step = 30
-                                        var mbytes = IntArray(step)
 
-                                        /*for (i in 0..(bytes.size/step))
-                                            mbytes.set(i*step,bytes.get())*/
+
+
+                                        if(!wait){
+                                            var rfk: Byte
+                                            var ifk : Byte
+                                            var magnitude : Double
+                                            var dbValue : Int
+                                            var results = IntArray(64)
+                                            var sum = 0
+                                            for (i in 0 until 128 )
+                                            {
+                                                rfk = bytes.get(i * 2 + 2)
+                                                ifk = bytes.get(i * 2 + 3)
+                                                magnitude = (rfk * rfk + ifk * ifk).toDouble()
+                                                dbValue = if (magnitude > 0) (10 * Math.log10(magnitude)).toInt() else 0
+                                                sum+=dbValue
+                                                
+                                                results[i] = dbValue
+
+                                            }
+                                            eventSink!!.success(results)
+                                            wait=true
+                                            Handler().postDelayed(Runnable {
+                                                wait=false
+                                            },300)
+                                        }else {
+
+                                            eventSink!!.success("nodata")
+
+                                        }
+
                                         //Log.e("main","rate : "+i.toString())
 
                                     }
@@ -202,6 +216,6 @@ class MainActivity: FlutterActivity(),EventChannel.StreamHandler {
     }
 
     override fun onCancel(arguments: Any?) {
-        eventSink=null
+        //eventSink=null
     }
 }
