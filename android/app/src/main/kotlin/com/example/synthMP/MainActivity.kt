@@ -71,14 +71,34 @@ class MainActivity: FlutterActivity(),EventChannel.StreamHandler {
                                     if (visualizer != null && visualizer.getEnabled()) {
                                         //Log.e("main","onFftDataCapture")
 
+                                        var rfk: Byte
+                                        var ifk : Byte
+                                        var magnitude : Double
+                                        var dbValue : Int
+                                        var results = IntArray(8)
+                                        var sum = 0
+                                        for (i in 0 until 128 )
+                                        {
+                                            rfk = bytes.get(i * 2 + 2)
+                                            ifk = bytes.get(i * 2 + 3)
+                                            magnitude = (rfk * rfk + ifk * ifk).toDouble()
+                                            dbValue = if (magnitude > 0) (10 * Math.log10(magnitude)).toInt() else 0
+                                            sum+=dbValue
+                                            if((i+1)%16==0){
+                                                results[((i+1)/16)-1] = sum/16
+                                                sum=0
+                                            }
 
 
-                                        if(!wait){
+                                        }
+                                        eventSink!!.success(results)
+
+                                      /*  if(!wait){
                                             var rfk: Byte
                                             var ifk : Byte
                                             var magnitude : Double
                                             var dbValue : Int
-                                            var results = IntArray(64)
+                                            var results = IntArray(16)
                                             var sum = 0
                                             for (i in 0 until 128 )
                                             {
@@ -87,8 +107,11 @@ class MainActivity: FlutterActivity(),EventChannel.StreamHandler {
                                                 magnitude = (rfk * rfk + ifk * ifk).toDouble()
                                                 dbValue = if (magnitude > 0) (10 * Math.log10(magnitude)).toInt() else 0
                                                 sum+=dbValue
-                                                
-                                                results[i] = dbValue
+                                                if((i+1)%8==0){
+                                                    results[((i+1)/8)-1] = sum/8
+                                                    sum=0
+                                                }
+
 
                                             }
                                             eventSink!!.success(results)
@@ -100,7 +123,7 @@ class MainActivity: FlutterActivity(),EventChannel.StreamHandler {
 
                                             eventSink!!.success("nodata")
 
-                                        }
+                                        }*/
 
                                         //Log.e("main","rate : "+i.toString())
 

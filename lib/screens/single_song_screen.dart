@@ -29,9 +29,9 @@ class _SingleSongScreenState extends State<SingleSongScreen>
           ..repeat(reverse: true);
     animation = Tween(begin: 0.0, end: 1.0).animate(animationController)
       ..addListener(() {
-        setState(() {
+        /*setState(() {
           _fraction = animation.value;
-        });
+        });*/
       });
   }
 
@@ -78,11 +78,10 @@ class _SingleSongScreenState extends State<SingleSongScreen>
             StreamBuilder(
                 stream: _getvisualizerData(),
                 builder: (context, snapshot) {
-                  dynamic data = List.filled(128, 0);
+                  dynamic data = List.filled(8, 0);
 
                   if (snapshot.hasData) data = snapshot.data;
 
-                  print(_fraction);
                   print(data.toString());
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -112,8 +111,7 @@ class _SingleSongScreenState extends State<SingleSongScreen>
                               height: 300,
                               width: 300,
                               child: CustomPaint(
-                                painter:
-                                    SoundWavePainter(data, 128, 120, _fraction),
+                                painter: SoundWavePainter(data, 128, 120, 0.8),
                               ),
                             ),
                           ],

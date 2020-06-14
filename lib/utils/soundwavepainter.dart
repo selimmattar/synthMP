@@ -22,7 +22,7 @@ class SoundWavePainter extends CustomPainter {
     _fraction = fraction;
     _numberOfUnits = numberOfUnits;
     _circleSize = circleSize;
-    _indexStep = _data.length ~/ _numberOfUnits;
+    _indexStep = _numberOfUnits ~/ _data.length;
   }
   @override
   void paint(Canvas canvas, Size size) {
@@ -30,19 +30,12 @@ class SoundWavePainter extends CustomPainter {
     double xCenter = size.width / 2;
     double yCenter = size.height / 2;
     double value;
-    /*= _data[0].toDouble() * 1.2;
 
-    double xStart = xCenter + _circleSize * cos((pi / step));
-    double yStart = yCenter + _circleSize * sin((pi / step));
-    double xDest = (xStart) * (cos((pi / step)) + 1) +
-        (xStart - value) * cos((pi / step) + pi);
-
-    double yDest = (yStart) * (sin((pi / step)) + 1) +
-        (yStart - value) * sin((pi / step) + pi);
-
-    canvas.drawLine(Offset(xStart, yStart), Offset(xDest, yDest), _paint);*/
     for (int i = 1; i <= _numberOfUnits; i++) {
-      value = _data[i - 1].toDouble() * _fraction;
+      int currIndex = (i - 1) ~/ _indexStep;
+
+      value = _data[currIndex].toDouble() *
+          pow(_fraction, ((_indexStep / 2) - (i % _indexStep)).abs() + 1);
 
       double xStart = xCenter + _circleSize * cos((pi / step) * i);
       double yStart = yCenter + _circleSize * sin((pi / step) * i);
